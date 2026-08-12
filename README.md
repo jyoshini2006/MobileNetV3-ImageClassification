@@ -47,3 +47,9 @@ MobileNetV3-ImageClassification/
 ├── imagenet_classes.json
 ├── .gitignore
 └── README.md
+## Running with a Custom Image
+
+You can provide any image path through the command line.
+
+```powershell
+python inference.py inputs/dog.jpg

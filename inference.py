@@ -43,7 +43,13 @@ print("Model is ready for inference")
 # 4. LOAD IMAGE
 # ==========================================
 
-image_path = "inputs/dog.jpg"
+import sys
+
+if len(sys.argv) < 2:
+    print("Usage: python inference.py <image_path>")
+    sys.exit(1)
+
+image_path = sys.argv[1]
 
 image = Image.open(image_path).convert("RGB")
 
