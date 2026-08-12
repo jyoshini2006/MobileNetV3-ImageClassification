@@ -53,3 +53,28 @@ You can provide any image path through the command line.
 
 ```powershell
 python inference.py inputs/dog.jpg
+## Example Results
+
+### Dog Image
+
+- **Input:** `inputs/dog.jpg`
+- **Prediction:** `golden_retriever`
+- **Confidence:** `84.95%`
+
+### Cat Image
+
+- **Input:** `inputs/cat.jpg`
+- **Prediction:** `tiger_cat`
+- **Confidence:** `62.85%`
+
+### Top-5 Predictions
+
+For `dog.jpg`:
+
+| Rank | Class | Confidence |
+|------|-------|------------|
+| 1 | golden_retriever | 84.95% |
+| 2 | Labrador_retriever | 3.61% |
+| 3 | kuvasz | 0.89% |
+| 4 | Chesapeake_Bay_retriever | 0.69% |
+| 5 | Brittany_spaniel | 0.38% |
