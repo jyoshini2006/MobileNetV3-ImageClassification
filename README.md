@@ -144,6 +144,19 @@ For `dog.jpg`:
 - **Pretrained Weights:** ImageNet
 - **Inference Device:** CPU
 - **Task:** Image Classification
+### Model Architecture Summary
+
+- **Architecture:** MobileNetV3-Large
+- **Total Parameters:** 5,483,032
+- **Input Shape:** `1 × 3 × 224 × 224`
+- **Output Shape:** `1 × 1000`
+- **Number of Classes:** 1000 ImageNet classes
+- **Final Feature Size:** 960
+- **Classifier:** `960 → 1280 → 1000`
+- **Global Pooling:** Adaptive Average Pooling
+- **Activation:** Hard-Swish / Hard-Sigmoid
+- **Attention:** Squeeze-and-Excitation blocks
+- **Inference Device:** CPU
 
 ### ImageNet Normalization
 
