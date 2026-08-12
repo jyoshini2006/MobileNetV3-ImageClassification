@@ -21,6 +21,7 @@ The model takes an input image, processes it into the required tensor format, ru
 - Top-5 predictions
 - Top-1 prediction with confidence score
 - ImageNet class name mapping
+- Custom image path through the command line
 
 ## Technologies Used
 
@@ -37,7 +38,8 @@ The model takes an input image, processes it into the required tensor format, ru
 MobileNetV3-ImageClassification/
 │
 ├── inputs/
-│   └── dog.jpg
+│   ├── dog.jpg
+│   └── cat.jpg
 │
 ├── weights/
 │   └── mobilenetv3-large-1cd25616.pth
@@ -45,36 +47,7 @@ MobileNetV3-ImageClassification/
 ├── mobilenet.py
 ├── inference.py
 ├── imagenet_classes.json
+├── requirements.txt
 ├── .gitignore
+├── LICENSE
 └── README.md
-## Running with a Custom Image
-
-You can provide any image path through the command line.
-
-```powershell
-python inference.py inputs/dog.jpg
-## Example Results
-
-### Dog Image
-
-- **Input:** `inputs/dog.jpg`
-- **Prediction:** `golden_retriever`
-- **Confidence:** `84.95%`
-
-### Cat Image
-
-- **Input:** `inputs/cat.jpg`
-- **Prediction:** `tiger_cat`
-- **Confidence:** `62.85%`
-
-### Top-5 Predictions
-
-For `dog.jpg`:
-
-| Rank | Class | Confidence |
-|------|-------|------------|
-| 1 | golden_retriever | 84.95% |
-| 2 | Labrador_retriever | 3.61% |
-| 3 | kuvasz | 0.89% |
-| 4 | Chesapeake_Bay_retriever | 0.69% |
-| 5 | Brittany_spaniel | 0.38% |
