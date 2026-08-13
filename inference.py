@@ -1,6 +1,9 @@
-import torch
-from PIL import Image
+import os
+import sys
 import json
+import torch
+import matplotlib.pyplot as plt
+from PIL import Image
 from mobilenet import mobilenetv3_large
 
 
@@ -21,7 +24,9 @@ weights_path = "weights/mobilenetv3-large-1cd25616.pth"
 
 checkpoint = torch.load(weights_path, map_location="cpu")
 
-# Handle either direct state_dict or checkpoint containing state_dict
+# Handle either direct state_dict
+# or checkpoint containing state_dict
+# import pdb; pdb.set_trace()
 if isinstance(checkpoint, dict) and "state_dict" in checkpoint:
     checkpoint = checkpoint["state_dict"]
 
@@ -40,16 +45,47 @@ print("Model is ready for inference")
 
 
 # ==========================================
-# 4. LOAD IMAGE
+# 4. SELECT IMAGE
 # ==========================================
 
-import sys
+input_folder = "inputs"
 
-if len(sys.argv) < 2:
-    print("Usage: python inference.py <image_path>")
+# Find available images automatically
+images = [
+    file
+    for file in os.listdir(input_folder)
+    if file.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+]
+
+if not images:
+    print("No images found in the inputs folder.")
     sys.exit(1)
 
-image_path = sys.argv[1]
+print("\nAvailable Images")
+print("----------------")
+
+for i, image_name in enumerate(images, 1):
+    print(f"{i}. {image_name}")
+
+
+# Ask user to select an image
+while True:
+    try:
+        choice = int(input("\nEnter image number: "))
+
+        if 1 <= choice <= len(images):
+            break
+
+        print(f"Please enter a number between 1 and {len(images)}.")
+
+    except ValueError:
+        print("Please enter a valid number.")
+
+
+image_name = images[choice - 1]
+image_path = os.path.join(input_folder, image_name)
+
+print(f"\nSelected Image: {image_name}")
 
 image = Image.open(image_path).convert("RGB")
 
@@ -63,21 +99,25 @@ print("Image loaded successfully")
 image = image.resize((224, 224))
 
 # Convert PIL image -> PyTorch tensor
+
 image = torch.tensor(
-    list(image.getdata()),
+    list(image.get_flattened_data()),
     dtype=torch.float32
 )
 
 image = image.reshape(224, 224, 3)
 
 # Convert HWC -> CHW
+
 image = image.permute(2, 0, 1)
 
 # Scale pixels from 0-255 to 0-1
+
 image = image / 255.0
 
 
 # ImageNet normalization
+
 mean = torch.tensor(
     [0.485, 0.456, 0.406]
 ).view(3, 1, 1)
@@ -88,8 +128,8 @@ std = torch.tensor(
 
 image = (image - mean) / std
 
-
 # Add batch dimension
+
 image = image.unsqueeze(0)
 
 
@@ -151,8 +191,24 @@ prediction = imagenet_classes[str(top1_index)]
 
 confidence = top5_prob[0][0].item() * 100
 
-
 print("\n======================================")
 print(f"Prediction : {prediction}")
 print(f"Confidence : {confidence:.2f}%")
 print("======================================")
+# ==========================================
+# 11. DISPLAY IMAGE WITH PREDICTION
+# ==========================================
+
+display_image = Image.open(image_path).convert("RGB")
+
+plt.figure(figsize=(8, 6))
+plt.imshow(display_image)
+plt.axis("off")
+
+plt.title(
+    f"Prediction: {prediction}\n"
+    f"Confidence: {confidence:.2f}%",
+    fontsize=14
+)
+
+plt.show()

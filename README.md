@@ -1,21 +1,21 @@
 # MobileNetV3-Large Image Classification
 
-A PyTorch-based image classification project using the **MobileNetV3-Large** architecture with pretrained ImageNet weights.
+A PyTorch-based image classification project using a manually implemented **MobileNetV3-Large** architecture with pretrained ImageNet weights.
 
-The project performs image preprocessing, model inference, Softmax probability calculation, and Top-5 image classification.
+The project demonstrates the complete inference pipeline from image preprocessing to Top-5 classification results.
 
 ## Project Overview
 
-This project demonstrates how to perform image classification using **MobileNetV3-Large**.
+This project implements MobileNetV3-Large directly in PyTorch and loads a pretrained ImageNet checkpoint into the architecture.
 
-The model takes an input image, processes it into the required tensor format, runs inference using pretrained weights, and produces the Top-5 predicted ImageNet classes with confidence scores.
+The system accepts an image, preprocesses it according to the ImageNet input requirements, performs inference, converts the output logits into probabilities using Softmax, and displays the Top-5 predicted classes.
 
 The implementation includes the model architecture, pretrained checkpoint loading, image preprocessing, inference, probability calculation, and ImageNet class-name mapping.
 
 ## Features
 
-- MobileNetV3-Large architecture implemented in PyTorch
-- Pretrained ImageNet weights
+- Manually implemented MobileNetV3-Large architecture
+- Pretrained ImageNet checkpoint loading
 - Custom image preprocessing
 - RGB image conversion
 - Image resizing to `224 × 224`
@@ -23,18 +23,196 @@ The implementation includes the model architecture, pretrained checkpoint loadin
 - CPU-based inference
 - Softmax probability calculation
 - Top-5 predictions
-- Top-1 prediction with confidence score
-- ImageNet class name mapping
-- Command-line support for custom image paths
+- Confidence scores
+- ImageNet class-name mapping
+- Custom image path support
 
-## Technologies Used
+## Model Architecture
 
-- Python 3.12
-- PyTorch
-- Pillow (PIL)
-- NumPy
-- MobileNetV3-Large
-- ImageNet
+MobileNetV3-Large uses several efficient components:
+
+- Inverted Residual blocks
+- Depthwise separable convolutions
+- Pointwise `1 × 1` convolutions
+- Squeeze-and-Excitation (SE) blocks
+- Hard-Swish activation
+- Hard-Sigmoid activation
+- Batch Normalization
+- Adaptive Average Pooling
+
+### Model Configuration
+
+| Property | Value |
+|---|---|
+| Architecture | MobileNetV3-Large |
+| Framework | PyTorch |
+| Input | `224 × 224 × 3` RGB |
+| Output | 1000 classes |
+| Parameters | 5,483,032 |
+| Dataset | ImageNet |
+| Inference | CPU |
+
+## How It Works
+
+The model follows this general process:
+
+```text
+Input Image
+     ↓
+Image Preprocessing
+     ↓
+MobileNetV3-Large
+     ↓
+1000 Class Logits
+     ↓
+Softmax
+     ↓
+Top-5 Predictions
+     ↓
+ImageNet Class Names
+```
+
+## Workflow
+
+The complete workflow of the project is:
+
+```text
+                  ┌──────────────────────┐
+                  │      Input Image     │
+                  │   dog.jpg / cat.jpg  │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │    Load using PIL    │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │    RGB Conversion    │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │   Resize 224 × 224   │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │  Tensor Conversion   │
+                  │      HWC → CHW       │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │   Normalize Image    │
+                  │    ImageNet Mean     │
+                  │    ImageNet Std      │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │  MobileNetV3-Large  │
+                  │  Manual Architecture │
+                  └──────────┬───────────┘
+                             │
+                    Pretrained Weights
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │    Model Output      │
+                  │    1000 Logits       │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │       Softmax        │
+                  │    Probabilities     │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │      Top-5           │
+                  │    Predictions       │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │ ImageNet Class Names │
+                  │    + Confidence      │
+                  └──────────────────────┘
+```
+
+### Workflow Summary
+
+1. **Input:** User provides an image path through the command line.
+2. **Loading:** Pillow loads the image and converts it to RGB.
+3. **Preprocessing:** The image is resized to `224 × 224`, converted to a tensor, rearranged to CHW format, scaled, and normalized.
+4. **Architecture:** The manually implemented MobileNetV3-Large model is created.
+5. **Weight Loading:** The pretrained ImageNet checkpoint is loaded into the architecture.
+6. **Inference:** The processed image is passed through the model.
+7. **Probability:** Softmax converts the output logits into class probabilities.
+8. **Classification:** The five highest-probability classes are selected.
+9. **Mapping:** Class indices are mapped to ImageNet class names.
+10. **Output:** Top-5 predictions and confidence scores are displayed.
+
+## Image Preprocessing
+
+The input image is processed using the following steps:
+
+1. Convert image to RGB.
+2. Resize to `224 × 224`.
+3. Convert the image to a PyTorch tensor.
+4. Convert from HWC to CHW format.
+5. Scale pixel values from `0–255` to `0–1`.
+6. Apply ImageNet normalization.
+7. Add the batch dimension.
+
+### ImageNet Normalization
+
+**Mean:**
+
+```text
+[0.485, 0.456, 0.406]
+```
+
+**Standard Deviation:**
+
+```text
+[0.229, 0.224, 0.225]
+```
+
+## Pretrained Weights
+
+The project uses a pretrained **MobileNetV3-Large checkpoint trained on ImageNet**.
+
+The checkpoint is stored locally at:
+
+```text
+weights/mobilenetv3-large-1cd25616.pth
+```
+
+The pretrained weights are loaded into the manually implemented MobileNetV3-Large architecture using PyTorch's `load_state_dict()`.
+
+## Model Details
+
+- **Architecture:** MobileNetV3-Large
+- **Framework:** PyTorch
+- **Input Size:** `224 × 224 RGB`
+- **Number of Classes:** 1000
+- **Inference Device:** CPU
+- **Task:** Image Classification
+
+### Model Architecture Summary
+
+- **Total Parameters:** 5,483,032
+- **Input Shape:** `1 × 3 × 224 × 224`
+- **Output Shape:** `1 × 1000`
+- **Final Feature Size:** 960
+- **Classifier:** `960 → 1280 → 1000`
+- **Global Pooling:** Adaptive Average Pooling
+- **Activation:** Hard-Swish / Hard-Sigmoid
+- **Attention:** Squeeze-and-Excitation blocks
 
 ## Project Structure
 
@@ -59,7 +237,7 @@ MobileNetV3-ImageClassification/
 
 ## Installation
 
-Create and activate a Python virtual environment:
+Create a Python virtual environment:
 
 ```powershell
 python -m venv .venv312
@@ -77,136 +255,58 @@ Install the required dependencies:
 pip install -r requirements.txt
 ```
 
-## Running the Project
+## Usage
 
-Run inference using the sample dog image:
-
-```powershell
-python inference.py inputs/dog.jpg
-```
-
-Run inference using the sample cat image:
+Run the inference program:
 
 ```powershell
-python inference.py inputs/cat.jpg
-```
-
-The program displays the Top-5 predicted classes along with their confidence scores and the final Top-1 prediction.
-
-## Running with a Custom Image
-
-You can provide any supported image path through the command line.
-
-```powershell
-python inference.py path/to/your/image.jpg
-```
-
-For example:
-
-```powershell
-python inference.py inputs/dog.jpg
-```
-
-The image is loaded and processed before being passed to the MobileNetV3-Large model.
+python inference.py
 
 ## Example Results
 
 ### Dog Image
 
-- **Input:** `inputs/dog.jpg`
-- **Prediction:** `golden_retriever`
-- **Confidence:** `84.95%`
+**Input:** `inputs/dog.jpg`
+
+```text
+1. golden_retriever : 84.95%
+2. Labrador_retriever : 3.61%
+3. kuvasz : 0.89%
+4. Chesapeake_Bay_retriever : 0.69%
+5. Brittany_spaniel : 0.38%
+```
+
+**Top-1 Prediction:** `golden_retriever`
+
+**Confidence:** `84.95%`
 
 ### Cat Image
 
-- **Input:** `inputs/cat.jpg`
-- **Prediction:** `tiger_cat`
-- **Confidence:** `62.85%`
-
-### Top-5 Predictions
-
-For `dog.jpg`:
-
-| Rank | Class | Confidence |
-|------|-------|------------|
-| 1 | golden_retriever | 84.95% |
-| 2 | Labrador_retriever | 3.61% |
-| 3 | kuvasz | 0.89% |
-| 4 | Chesapeake_Bay_retriever | 0.69% |
-| 5 | Brittany_spaniel | 0.38% |
-
-## Model Details
-
-- **Architecture:** MobileNetV3-Large
-- **Framework:** PyTorch
-- **Input Size:** `224 × 224 RGB`
-- **Number of Classes:** 1000
-- **Pretrained Weights:** ImageNet
-- **Inference Device:** CPU
-- **Task:** Image Classification
-### Model Architecture Summary
-
-- **Architecture:** MobileNetV3-Large
-- **Total Parameters:** 5,483,032
-- **Input Shape:** `1 × 3 × 224 × 224`
-- **Output Shape:** `1 × 1000`
-- **Number of Classes:** 1000 ImageNet classes
-- **Final Feature Size:** 960
-- **Classifier:** `960 → 1280 → 1000`
-- **Global Pooling:** Adaptive Average Pooling
-- **Activation:** Hard-Swish / Hard-Sigmoid
-- **Attention:** Squeeze-and-Excitation blocks
-- **Inference Device:** CPU
-
-### ImageNet Normalization
-
-The input image is normalized using the standard ImageNet values:
-
-- **Mean:** `[0.485, 0.456, 0.406]`
-- **Std:** `[0.229, 0.224, 0.225]`
-
-## Inference Pipeline
-
-The inference process follows these steps:
-
-1. Load the input image.
-2. Convert the image to RGB.
-3. Resize the image to `224 × 224`.
-4. Convert the image to a PyTorch tensor.
-5. Scale pixel values from `0–255` to `0–1`.
-6. Apply ImageNet normalization.
-7. Add the batch dimension.
-8. Run MobileNetV3-Large inference.
-9. Apply Softmax to obtain class probabilities.
-10. Select the Top-5 predictions.
-11. Map predicted class indices to ImageNet class names.
-12. Display the Top-5 predictions and Top-1 confidence score.
-
-## Pretrained Weights
-
-The project uses a pretrained **MobileNetV3-Large** checkpoint trained on the ImageNet dataset.
-
-The checkpoint is stored locally in:
+**Input:** `inputs/cat.jpg`
 
 ```text
-weights/mobilenetv3-large-1cd25616.pth
+1. tiger_cat : 62.85%
+2. tabby : 11.54%
+3. Egyptian_cat : 7.43%
+4. lynx : 0.59%
+5. red_fox : 0.48%
 ```
 
-The pretrained weights are loaded into the MobileNetV3-Large architecture before inference.
+**Top-1 Prediction:** `tiger_cat`
 
-## File Description
+**Confidence:** `62.85%`
 
-| File / Folder | Description |
-|---|---|
-| `mobilenet.py` | Contains the MobileNetV3-Large model architecture |
-| `inference.py` | Handles image loading, preprocessing, inference, and prediction |
-| `imagenet_classes.json` | Maps ImageNet class indices to class names |
-| `weights/` | Contains the pretrained model checkpoint |
-| `inputs/` | Contains sample input images |
-| `requirements.txt` | Lists required Python dependencies |
-| `.gitignore` | Specifies files and folders excluded from Git |
-| `LICENSE` | Project license |
-| `README.md` | Project documentation |
+## Validation
+
+The model architecture was validated using a test input with the following dimensions:
+
+```text
+Input Shape  : [1, 3, 224, 224]
+Output Shape : [1, 1000]
+Parameters   : 5,483,032
+```
+
+The pretrained checkpoint was successfully loaded and the model successfully performed inference on multiple sample images.
 
 ## Output
 
@@ -230,6 +330,20 @@ Prediction : golden_retriever
 Confidence : 84.95%
 ```
 
+## File Description
+
+| File / Folder | Description |
+|---|---|
+| `mobilenet.py` | Contains the MobileNetV3-Large model architecture |
+| `inference.py` | Handles image loading, preprocessing, inference, and prediction |
+| `imagenet_classes.json` | Maps ImageNet class indices to class names |
+| `weights/` | Contains the pretrained model checkpoint |
+| `inputs/` | Contains sample input images |
+| `requirements.txt` | Lists required Python dependencies |
+| `.gitignore` | Specifies files and folders excluded from Git |
+| `LICENSE` | Project license |
+| `README.md` | Project documentation |
+
 ## Requirements
 
 The project requires:
@@ -239,7 +353,7 @@ The project requires:
 - Pillow
 - NumPy
 
-All required packages can be installed using:
+All dependencies can be installed using:
 
 ```powershell
 pip install -r requirements.txt
@@ -247,12 +361,21 @@ pip install -r requirements.txt
 
 ## Notes
 
-- The model performs **classification**, not object detection or segmentation.
+- The model performs **image classification**, not object detection or segmentation.
 - The model predicts one of the **1000 ImageNet classes**.
-- The confidence values are obtained from the Softmax probabilities.
-- Inference is performed on the **CPU**.
+- Confidence values are obtained from Softmax probabilities.
+- Inference is performed on the CPU.
 - Input images are converted to RGB before preprocessing.
 - The model expects an input resolution of `224 × 224`.
+
+## Future Improvements
+
+- Add a graphical user interface
+- Add GPU/CUDA inference
+- Support batch image classification
+- Display predictions directly on the uploaded image
+- Add inference performance benchmarking
+- Add a web-based interface
 
 ## License
 
